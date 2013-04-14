@@ -153,10 +153,10 @@ int ZEXPORT unzStringFileNameCompare OF ((const char* fileName1,
                                                  int iCaseSensitivity));
 /*
    Compare two filename (fileName1,fileName2).
-   If iCaseSenisivity = 1, comparision is case sensitivity (like strcmp)
-   If iCaseSenisivity = 2, comparision is not case sensitivity (like strcmpi
+   If iCaseSenisivity = 1, comparison is case sensitivity (like strcmp)
+   If iCaseSenisivity = 2, comparison is not case sensitivity (like strcmpi
                                 or strcasecmp)
-   If iCaseSenisivity = 0, case sensitivity is defaut of your operating system
+   If iCaseSenisivity = 0, case sensitivity is default of your operating system
     (like 1 on Unix, 2 on Windows)
 */
 
@@ -225,14 +225,36 @@ int ZEXPORT unzGetGlobalComment OF((unzFile file,
 /* Unzip package allow you browse the directory of the zipfile */
 
 int ZEXPORT unzGoToFirstFile OF((unzFile file));
+
 /*
   Set the current file of the zipfile to the first file.
+  return UNZ_OK if there is no problem
+*/
+
+int ZEXPORT unzGoToFirstFile64 OF((unzFile file,
+                        unz_file_info64 *pfile_info,
+                        char *szFileName,
+                        uLong fileNameBufferSize));
+/*
+  Set the current file of the zipfile to the first file
+  with retrieving an information about the file.
   return UNZ_OK if there is no problem
 */
 
 int ZEXPORT unzGoToNextFile OF((unzFile file));
 /*
   Set the current file of the zipfile to the next file.
+  return UNZ_OK if there is no problem
+  return UNZ_END_OF_LIST_OF_FILE if the actual file was the latest.
+*/
+
+int ZEXPORT unzGoToNextFile64 OF((unzFile file,
+                       unz_file_info64 *pfile_info,
+                       char *szFileName,
+                       uLong fileNameBufferSize));
+/*
+  Set the current file of the zipfile to the next file
+  with retrieving an information about the file.
   return UNZ_OK if there is no problem
   return UNZ_END_OF_LIST_OF_FILE if the actual file was the latest.
 */
@@ -302,9 +324,9 @@ int ZEXPORT unzGetCurrentFileInfo OF((unzFile file,
                          uLong commentBufferSize));
 /*
   Get Info about the current file
-  if pfile_info!=NULL, the *pfile_info structure will contain somes info about
+  if pfile_info!=NULL, the *pfile_info structure will contain some info about
         the current file
-  if szFileName!=NULL, the filemane string will be copied in szFileName
+  if szFileName!=NULL, the filename string will be copied in szFileName
             (fileNameBufferSize is the size of the buffer)
   if extraField!=NULL, the extra field information will be copied in extraField
             (extraFieldBufferSize is the size of the buffer).
@@ -382,7 +404,7 @@ int ZEXPORT unzReadCurrentFile OF((unzFile file,
   buf contain buffer where data must be copied
   len the size of buf.
 
-  return the number of byte copied if somes bytes are copied
+  return the number of byte copied if some bytes are copied
   return 0 if the end of file was reached
   return <0 with error code if there is an error
     (UNZ_ERRNO for IO error, or zLib error for uncompress error)

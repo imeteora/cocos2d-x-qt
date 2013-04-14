@@ -1,12 +1,17 @@
+INCLUDEPATH += \
+../cocoa
+
 HEADERS += \
-    ../cocoa/CCNS.h
+../cocoa/CCObject.h
 
 SOURCES += \
-    ../cocoa/CCZone.cpp \
-    ../cocoa/CCSet.cpp \
-    ../cocoa/CCObject.cpp \
-    ../cocoa/CCNS.cpp \
-    ../cocoa/CCGeometry.cpp \
-    ../cocoa/CCData.cpp \
-    ../cocoa/CCAutoreleasePool.cpp \
-    ../cocoa/CCAffineTransform.cpp
+../cocoa/CCAffineTransform.cpp \
+../cocoa/CCArray.cpp \
+../cocoa/CCAutoreleasePool.cpp \
+../cocoa/CCDictionary.cpp \
+../cocoa/CCGeometry.cpp \
+../cocoa/CCNS.cpp \
+../cocoa/CCObject.cpp \
+../cocoa/CCSet.cpp \
+../cocoa/CCString.cpp \
+../cocoa/CCZone.cpp

@@ -1,17 +1,25 @@
+/*
+typedef enum
+{
+    kCCMenuStateWaiting,
+    kCCMenuStateTrackingTouch
+} tCCMenuState;
 
 enum {
-    //* priority used by the menu
-    kCCMenuTouchPriority = -128,
+    //* priority used by the menu for the event handler
+    kCCMenuHandlerPriority = -128,
 };
-
+*/
 class CCMenu : public CCLayer
 {
     void alignItemsVertically();
     void alignItemsVerticallyWithPadding(float padding);
     void alignItemsHorizontally();
     void alignItemsHorizontallyWithPadding(float padding);
-    void alignItemsInColumns(unsigned int columns, va_list args);
-    void alignItemsInRows(unsigned int rows, va_list args);
+    // void alignItemsInColumns(unsigned int columns, va_list args);
+    // void alignItemsInRows(unsigned int rows, va_list args);
+
+	setHandlerPriority(int newPriority);
 
     void addChild(CCMenuItem* child, int zOrder = 0, int tag = -1);
 
@@ -20,6 +28,13 @@ class CCMenu : public CCLayer
     void setColor(ccColor3B color);
     ccColor3B getColor(void);
 
-    static CCMenu* node();
-    static CCMenu* menuWithItem(CCMenuItem* item);
+	void setOpacityModifyRGB(bool bValue);
+    bool isOpacityModifyRGB(void);
+
+    bool isEnabled();
+    void setEnabled(bool value);
+
+    static CCMenu* create();
+    static CCMenu* createWithItem(CCMenuItem* item);
+	static CCMenu* createWithArray(CCArray* pArrayOfItems);
 };

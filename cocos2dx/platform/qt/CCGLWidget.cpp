@@ -1,5 +1,6 @@
-#include "CCGLWidget.h"
 #include <QtCore/QTimer>
+#include "CCGLWidget.h"
+#include "CCEGLView.h"
 
 GLWidget::GLWidget(QWidget *parent, int width, int height, CCDirector* director )
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
@@ -72,7 +73,8 @@ void GLWidget::resizeEvent(QResizeEvent *event)
         viewResizeFunc(event);
     }
     if ( m_director ) {
-        m_director->reshapeProjection(CCSizeMake( size().width(), size().height()) );
+//        m_director->reshapeProjection(CCSizeMake( size().width(), size().height()) );
+        m_director->getOpenGLView()->setDesignResolutionSize(size().width(), size().height(), kResolutionShowAll);
     }
     QGLWidget::resizeEvent(event);
 }

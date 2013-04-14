@@ -5,7 +5,8 @@
 APP_NAME=$2
 COCOS2DX_ROOT=$1
 APP_DIR=$COCOS2DX_ROOT/$APP_NAME
-HELLOWORLD_ROOT=$COCOS2DX_ROOT/HelloWorld
+HELLOWORLD_ROOT=$COCOS2DX_ROOT/samples/Cpp/HelloCpp
+COCOSJAVALIB_ROOT=$COCOS2DX_ROOT/cocos2dx/platform/android/java
 NDK_ROOT=$3
 PACKAGE_PATH=$4
 NEED_BOX2D=$5
@@ -17,31 +18,11 @@ convert_package_path_to_dir(){
     PACKAGE_PATH_DIR=`echo $1 | sed -e "s/\./\//g"`
 }
 
-# make director andorid and copy all files and directories into it
-move_files_into_android(){
-    mkdir $APP_DIR/android
-
-    for file in $APP_DIR/*
-    do
-        if [ -d $file ]; then
-            if [ $file != $APP_DIR/android ]; then
-                mv -f $file $APP_DIR/android
-            fi
-        fi
-
-        if [ -f $file ]; then
-            mv $file $APP_DIR/android
-        fi
-    done
-}
-
-copy_cpp_h_from_helloworld(){
+copy_cpp_h(){
     mkdir $APP_DIR/Classes
-    for file in `ls $HELLOWORLD_ROOT/Classes/* | grep -E '.*\.(cpp|h|mk)' `
+    for file in $COCOS2DX_ROOT/template/android/Classes/*
     do
-        if [ -f $file ];then
-            cp $file $APP_DIR/Classes
-        fi
+        cp $file $APP_DIR/Classes
     done
 }
 
@@ -49,7 +30,7 @@ copy_cpp_h_from_helloworld(){
 copy_resouces(){
     mkdir $APP_DIR/Resources
     
-    for file in $HELLOWORLD_ROOT/Resources/*
+    for file in $HELLOWORLD_ROOT/Resources/iphone/*
     do
         cp -rf $file $APP_DIR/Resources
     done
@@ -57,78 +38,68 @@ copy_resouces(){
 
 # from HelloWorld copy src and jni to APP_DIR
 copy_src_and_jni(){
-    cp -rf $HELLOWORLD_ROOT/android/jni $APP_DIR/android
-    cp -rf $HELLOWORLD_ROOT/android/src $APP_DIR/android
+    cp -rf $HELLOWORLD_ROOT/proj.android/jni $APP_DIR/proj.android
+    cp -rf $HELLOWORLD_ROOT/proj.android/src $APP_DIR/proj.android
     
-    # repalce Android.mk and Application.mk
-    sh $COCOS2DX_ROOT/template/android/classesmk.sh $APP_DIR/Classes/Android.mk $NEED_BOX2D $NEED_CHIPMUNK $NEED_LUA
-    sh $COCOS2DX_ROOT/template/android/gamestaticmk.sh $APP_DIR/android/jni/Android.mk $NEED_BOX2D $NEED_CHIPMUNK $NEED_LUA
-    sh $COCOS2DX_ROOT/template/android/gamemk.sh $APP_DIR/android/jni/helloworld/Android.mk $NEED_BOX2D $NEED_CHIPMUNK $NEED_LUA
-    sh $COCOS2DX_ROOT/template/android/application.sh $APP_DIR/android/jni/Application.mk $NEED_BOX2D $NEED_CHIPMUNK $NEED_LUA
+    # replace Android.mk
+    sh $COCOS2DX_ROOT/template/android/gamemk.sh $APP_DIR/proj.android/jni/Android.mk $NEED_BOX2D $NEED_CHIPMUNK $NEED_LUA
 }
 
 # copy build_native.sh and replace something
 copy_build_native(){
     # here should use # instead of /, why??
-    sed "s#__cocos2dxroot__#$COCOS2DX_ROOT#;s#__ndkroot__#$NDK_ROOT#;s#__projectname__#$APP_NAME#" $COCOS2DX_ROOT/template/android/build_native.sh > $APP_DIR/android/build_native.sh
-    chmod u+x $APP_DIR/android/build_native.sh
+    sed "s#__cocos2dxroot__#$COCOS2DX_ROOT#;s#__ndkroot__#$NDK_ROOT#;s#__projectname__#$APP_NAME#" $COCOS2DX_ROOT/template/android/build_native.sh > $APP_DIR/proj.android/build_native.sh
+    chmod u+x $APP_DIR/proj.android/build_native.sh
+}
+
+# copy debugger script and replace templated parameters
+copy_ndkgdb(){
+    sed "s#__projectname__#$APP_NAME#;s#__packagename__#$PACKAGE_PATH#" $COCOS2DX_ROOT/template/android/ndkgdb.sh > $APP_DIR/proj.android/ndkgdb.sh
+    chmod u+x $APP_DIR/proj.android/ndkgdb.sh
+}
+
+# copy .project and .classpath and replace project name
+modify_project_classpath(){
+    sed "s/HelloCpp/$APP_NAME/" $COCOS2DX_ROOT/template/android/.project > $APP_DIR/proj.android/.project
+    cp -f $COCOS2DX_ROOT/template/android/.classpath $APP_DIR/proj.android
 }
 
 # replace AndroidManifext.xml and change the activity name
 # use sed to replace the specified line
 modify_androidmanifest(){
-    sed "s/ApplicationDemo/$APP_NAME/;s/org\.cocos2dx\.application/$PACKAGE_PATH/" $HELLOWORLD_ROOT/android/AndroidManifest.xml > $APP_DIR/android/AndroidManifest.xml
+    sed "s/HelloCpp/$APP_NAME/;s/org\.cocos2dx\.hellocpp/$PACKAGE_PATH/" $HELLOWORLD_ROOT/proj.android/AndroidManifest.xml > $APP_DIR/proj.android/AndroidManifest.xml
 }
 
-# modify ApplicationDemo.java
+# modify HelloCpp.java
 modify_applicationdemo(){
     convert_package_path_to_dir $PACKAGE_PATH
     
-    # rename APP_DIR/android/src/org/cocos2dx/application/ApplicationDemo.java to 
-    # APP_DIR/android/src/org/cocos2dx/application/$APP_NAME.java, change helloworld to game
-    sed "s/ApplicationDemo/$APP_NAME/;s/helloworld/game/;s/org\.cocos2dx\.application/$PACKAGE_PATH/" $APP_DIR/android/src/org/cocos2dx/application/ApplicationDemo.java > $APP_DIR/android/src/$PACKAGE_PATH_DIR/$APP_NAME.java    
-    rm -fr $APP_DIR/android/src/org/cocos2dx/application
-    
-    # load need .so
-    CONTENT=
-    if [ $NEED_BOX2D = "true" ];then
-        CONTENT=$CONTENT'System.loadLibrary("box2d");'
-    fi
-
-    if [ $NEED_CHIPMUNK = "true" ]; then
-        CONTENT=$CONTENT'System.loadLibrary("chipmunk");'
-    fi
-
-    if [ $NEED_LUA = "true" ]; then
-        CONTENT=$CONTENT'System.loadLibrary("lua");'
-    fi
-    
-    sed -i -e "s/System.loadLibrary(\"cocosdenshion\")\;/System.loadLibrary(\"cocosdenshion\")\;$CONTENT/" $APP_DIR/android/src/$PACKAGE_PATH_DIR/$APP_NAME.java
+    # rename APP_DIR/android/src/org/cocos2dx/hellocpp/HelloCpp.java to 
+    # APP_DIR/android/src/org/cocos2dx/hellocpp/$APP_NAME.java, change hellocpp to game
+    sed "s/HelloCpp/$APP_NAME/;s/org\.cocos2dx\.hellocpp/$PACKAGE_PATH/;s/hellocpp/game/" $APP_DIR/proj.android/src/org/cocos2dx/hellocpp/HelloCpp.java > $APP_DIR/proj.android/src/$PACKAGE_PATH_DIR/$APP_NAME.java    
+    rm -fr $APP_DIR/proj.android/src/org/cocos2dx/hellocpp
 }
 
 modify_layout(){
-    cp $HELLOWORLD_ROOT/android/res/layout/helloworld_demo.xml $APP_DIR/android/res/layout
-    sed "s/helloworld_gl_surfaceview/game_gl_surfaceview/" $APP_DIR/android/res/layout/helloworld_demo.xml > $APP_DIR/android/res/layout/game_demo.xml
-    rm -f $APP_DIR/android/res/layout/main.xml
-    rm -f $APP_DIR/android/res/layout/helloworld_demo.xml
+    rm -f $APP_DIR/proj.android/res/layout/main.xml
 }
 
 # android.bat of android 4.0 don't create res/drawable-hdpi res/drawable-ldpi and res/drawable-mdpi.
 # These work are done in ADT
 copy_icon(){
-    if [ ! -d $APP_DIR/android/res/drawable-hdpi ]; then
-        cp -r $HELLOWORLD_ROOT/android/res/drawable-hdpi $APP_DIR/android/res
-        cp -r $HELLOWORLD_ROOT/android/res/drawable-ldpi $APP_DIR/android/res
-        cp -r $HELLOWORLD_ROOT/android/res/drawable-mdpi $APP_DIR/android/res
+    if [ ! -d $APP_DIR/proj.android/res/drawable-hdpi ]; then
+        cp -r $HELLOWORLD_ROOT/proj.android/res/drawable-hdpi $APP_DIR/proj.android/res
+        cp -r $HELLOWORLD_ROOT/proj.android/res/drawable-ldpi $APP_DIR/proj.android/res
+        cp -r $HELLOWORLD_ROOT/proj.android/res/drawable-mdpi $APP_DIR/proj.android/res
     fi
 }
 
-
-move_files_into_android
-copy_cpp_h_from_helloworld
+copy_cpp_h
 copy_resouces
 copy_src_and_jni
 copy_build_native
+copy_ndkgdb
+modify_project_classpath
 modify_androidmanifest
 modify_applicationdemo
 modify_layout

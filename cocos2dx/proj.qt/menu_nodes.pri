@@ -1,3 +1,3 @@
 SOURCES += \
-    ../menu_nodes/CCMenuItem.cpp \
-    ../menu_nodes/CCMenu.cpp
+../menu_nodes/CCMenu.cpp \
+../menu_nodes/CCMenuItem.cpp

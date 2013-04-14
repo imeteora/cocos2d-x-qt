@@ -1,14 +1,10 @@
 
 typedef enum {
-    /// Device oriented vertically, home button on the bottom
-    kCCDeviceOrientationPortrait = 0, // UIDeviceOrientationPortrait,
-    /// Device oriented vertically, home button on the top
-    kCCDeviceOrientationPortraitUpsideDown = 1, // UIDeviceOrientationPortraitUpsideDown,
-    /// Device oriented horizontally, home button on the right
-    kCCDeviceOrientationLandscapeLeft = 2, // UIDeviceOrientationLandscapeLeft,
-    /// Device oriented horizontally, home button on the left
-    kCCDeviceOrientationLandscapeRight = 3, // UIDeviceOrientationLandscapeRight,
-} ccDeviceOrientation;
+    kCCDirectorProjection2D,
+    kCCDirectorProjection3D,
+    kCCDirectorProjectionCustom,
+    kCCDirectorProjectionDefault = kCCDirectorProjection3D,
+} ccDirectorProjection;
 
 class CCDirector : public CCObject
 {
@@ -16,28 +12,49 @@ class CCDirector : public CCObject
 
     double getAnimationInterval(void);
 
-    bool isDisplayFPS(void);
-    void setDisplayFPS(bool bDisplayFPS);
+    bool isDisplayStats(void);
+    void setDisplayStats(bool bDisplayStats);
 
-    bool isRetinaDisplay();
     bool isPaused(void);
-    unsigned int getFrames(void);
+    unsigned int getTotalFrames(void);
+
+	CCEGLViewProtocol* getOpenGLView(void);
 
     CCSize getWinSize(void);
     CCSize getWinSizeInPixels(void);
-    CCSize getDisplaySizeInPixels(void);
 
     CCPoint convertToGL(CCPoint obPoint);
     CCPoint convertToUI(CCPoint obPoint);
+
+	void pause();
+	void resume();
+	void purgeCachedData(void);
 
     void runWithScene(CCScene *pScene);
     void pushScene(CCScene *pScene);
     void popScene(void);
     void replaceScene(CCScene *pScene);
+    void end @ endToLua ();
 
-    CGFloat getContentScaleFactor(void);
+    float getContentScaleFactor(void);
+    void setContentScaleFactor(float scaleFactor);
 
-    int getDeviceOrientation();
+    CCScheduler* getScheduler();
+    CCActionManager* getActionManager();
+    CCTouchDispatcher* getTouchDispatcher();
+    // CCKeypadDispatcher* getKeypadDispatcher();
+    // CCAccelerometer* getAccelerometer();
+
+	void setDepthTest(bool var);
+	void setProjection(ccDirectorProjection kProjection);
+	ccDirectorProjection getProjection(void);
+
+	CCNode* getNotificationNode();
+    void setNotificationNode(CCNode *node);
+
+	float getZEye(void);
+	CCSize getVisibleSize();
+    CCPoint getVisibleOrigin();
 
     static CCDirector* sharedDirector(void);
 };

@@ -1,3 +1,6 @@
+enum {
+    kCCNodeTagInvalid = -1,
+};
 
 enum {
     kCCNodeOnEnter,
@@ -17,58 +20,54 @@ class CCNode : public CCObject
     void    setScaleX(float newScaleX);
     float   getScaleY();
     void    setScaleY(float newScaleY);
-    CCPoint getPositionLua();
     void    getPosition(float* x = 0, float* y = 0);
     float   getPositionX();
     float   getPositionY();
-    void    setPosition(CCPoint newPosition);
     void    setPosition(float x, float y);
+	void 	setPosition(CCPoint pos);
     void    setPositionX(float x);
     void    setPositionY(float y);
     float   getSkewX();
     void    setSkewX(float skewX);
     float   getSkewY();
     void    setSkewY(float skewY);
-    bool    getIsVisible();
-    void    setIsVisible(bool var);
+    bool    isVisible();
+    void    setVisible(bool var);
     CCPoint getAnchorPoint();
     void    setAnchorPoint(CCPoint point);
     CCSize  getContentSize();
-    void    setContentSize(CCSize size);
+    void    setContentSize(const CCSize & size);
     int     getTag();
     void    setTag(int var);
 
-    tolua_readonly tolua_property__CCZOrder int zOrder;
-    tolua_property__CCVertexZ       float vertexZ;
-    tolua_property__CCRotation      float rotation;
-    tolua_property__CCScale         float scale;
-    tolua_property__CCScaleX        float scaleX;
-    tolua_property__CCScaleY        float scaleY;
-    tolua_property__CCPositionX     float x;
-    tolua_property__CCPositionY     float y;
-    tolua_property__CCSkewX         float skewX;
-    tolua_property__CCSkewY         float skewY;
-    tolua_property__CCIsVisible     bool  isVisible;
-    tolua_property__CCAnchorPoint   CCPoint anchorPoint;
-    tolua_property__CCContentSize   CCSize contentSize;
-    tolua_property__CCTag           int tag;
-
-    CCMutableArray<CCNode*>* getChildren();
+    CCArray* getChildren();
     unsigned int getChildrenCount(void);
 
     CCCamera*   getCamera();
     CCGridBase* getGrid();
     void    setGrid(CCGridBase* pGrid);
-    CCPoint getAnchorPointInPixels();
-    CCSize  getContentSizeInPixels();
-    void    setContentSizeInPixels(CCSize sz);
-    bool    getIsRunning();
+	CCPoint getAnchorPointInPoints();
+    bool    isRunning();
     CCNode* getParent();
     void    setParent(CCNode * var);
-    bool    getIsRelativeAnchorPoint();
-    void    setIsRelativeAnchorPoint(bool newValue);
+    bool    isIgnoreAnchorPointForPosition();
+    void    ignoreAnchorPointForPosition(bool newValue);
     void*   getUserData();
     void    setUserData(void *var);
+	CCObject* getUserObject();
+	void    setUserObject(CCObject* pObject);
+	CCGLProgram* getShaderProgram();
+	void    setShaderProgram(CCGLProgram* pShaderProgram);
+	int     getOrderOfArrival();
+	void    setOrderOfArrival(int order);
+	ccGLServerState getGLServerState();
+	void    setGLServerState(ccGLServerState state);
+	CCActionManager* getActionManager();
+	void    setActionManager(CCActionManager* pActionMgr);
+	ccGLServerState getGLServerState(void);
+	void    setGLServerState(ccGLServerState state);
+	CCScheduler* getScheduler();
+	void    setScheduler(CCScheduler* pScheduler);
     void    addChild(CCNode * child);
     void    addChild(CCNode * child, int zOrder);
     void    addChild(CCNode * child, int zOrder, int tag);
@@ -82,7 +81,7 @@ class CCNode : public CCObject
     void    transformAncestors(void);
     CCRect  boundingBox(void);
 
-    void    runAction(CCAction* action);
+    CCAction* runAction(CCAction* action);
     void    stopAllActions(void);
     void    stopAction(CCAction* action);
 
@@ -92,13 +91,6 @@ class CCNode : public CCObject
     CCNode* getChildByTag(int tag);
 
     unsigned int numberOfRunningActions(void);
-
-    void    scheduleUpdate(void);
-    void    scheduleUpdateWithPriority(int priority);
-    void    unscheduleUpdate(void);
-    void    unscheduleAllSelectors(void);
-    void    resumeSchedulerAndActions(void);
-    void    pauseSchedulerAndActions(void);
 
     CCAffineTransform nodeToParentTransform(void);
     CCAffineTransform parentToNodeTransform(void);
@@ -115,8 +107,11 @@ class CCNode : public CCObject
     void removeFromParentAndCleanup(bool cleanup);
     void removeChildByTag(int tag, bool cleanup);
 
+	void scheduleUpdateWithPriorityLua(LUA_FUNCTION nHandler, int priority);
+	void unscheduleUpdate(void);
+
     void registerScriptHandler(LUA_FUNCTION funcID);
     void unregisterScriptHandler(void);
 
-    static CCNode * node(void);
+    static CCNode * create(void);
 };

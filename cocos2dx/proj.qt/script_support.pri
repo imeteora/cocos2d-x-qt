@@ -1,3 +1,2 @@
 SOURCES += \
-    ../script_support/CCScriptSupport.cpp
-
+../script_support/CCScriptSupport.cpp 
