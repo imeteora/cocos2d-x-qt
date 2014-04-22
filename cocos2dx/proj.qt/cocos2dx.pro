@@ -85,16 +85,16 @@ unix:!symbian {
 
 unix: {
     INCLUDEPATH += \
-        /opt/local/include \
-        /opt/local/include/libxml2 \
-        ../platform/third_party/linux/include \
+        /usr/include \
+        /usr/local/include \
+        /usr/local/opt/libxml2/include/libxml2 \
 
-    LIBS += -L../platform/third_party/linux/libraries -lpng
-    LIBS += -L/opt/local/lib/ -ltiff
-    LIBS += -L/opt/local/lib/ -ljpeg
-    LIBS += -L/opt/local/lib/ -lxml2
-    LIBS += -L/opt/local/lib/ -lz
-    LIBS += -L/opt/local/lib/ -lcurl
+    LIBS += -L/usr/local/lib -lpng
+    LIBS += -L/usr/local/lib/ -ltiff
+    LIBS += -L/usr/local/lib/ -ljpeg
+    LIBS += -L/usr/local/lib/ -lxml2
+    LIBS += -L/usr/local/lib/ -lz
+    LIBS += -L/usr/local/lib/ -lcurl
 }
 
 OTHER_FILES +=
